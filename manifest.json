@@ -1,0 +1,16 @@
+{
+  "name": "Pointcalc Esports Pro",
+  "short_name": "Pointcalc",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#12080c",
+  "theme_color": "#682333",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/808/808439.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

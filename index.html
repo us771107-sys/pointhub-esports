@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pointcalc FF Pro</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --primary-maroon: #682333;
+      --maroon-gradient: linear-gradient(180deg, #782235 0%, #46131f 100%);
+      --accent-pink: #f8abb7;
+      --bg-dark: #0f0a0d;
+      --card-bg: #1c0e14;
+      --card-border: #3b1522;
+      --gold: #f1c40f;
+      --silver: #e0e0e0;
+      --bronze: #e67e22;
+      --green: #2ecc71;
+      --text-white: #ffffff;
+      --text-muted: #9c888f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      min-height: 100vh;
+      padding-bottom: 70px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-header {
+      background: var(--maroon-gradient);
+      padding: 34px 20px 24px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(70, 19, 31, 0.5);
+    }
+    .app-header h1 {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .app-header p {
+      font-size: 11px;
+      color: var(--accent-pink);
+      margin-top: 3px;
+    }
+    .back-btn {
+      position: absolute;
+      left: 16px;
+      top: 32px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .dash-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+      background: #15060a;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .dash-topbar h2 {
+      font-size: 17px;
+      color: #fff;
+    }
+    .dash-topbar h2 span {
+      color: #ff385c;
+    }
+    .badge-pro {
+      background: linear-gradient(45deg, #c22941, #f39c12);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .content-padding {
+      padding: 16px;
+    }
+    .card-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 44px;
+      background: #0d0407;
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      padding: 0 14px;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--primary-maroon);
+    }
+    .slider-val {
+      color: var(--gold);
+      min-width: 22px;
+      text-align: right;
+    }
+
+    .tabs-wrap {
+      display: flex;
+      background: #2a0f17;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--primary-maroon);
+      color: #fff;
+    }
+
+    .btn-action {
+      width: 100%;
+      height: 44px;
+      background: var(--primary-maroon);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qa-slider {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 0 16px 12px;
+    }
+    .qa-box {
+      min-width: 82px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .qa-box span {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .ai-banner-card {
+      background: linear-gradient(135deg, #1c0e14 0%, #30101b 100%);
+      border: 1.5px dashed #ff385c;
+      border-radius: 16px;
+      padding: 14px;
+      margin: 0 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .tourney-item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin: 0 16px 14px;
+    }
+    .tourney-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .t-badge {
+      background: #2f0e1a;
+      color: #ff385c;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .pills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill-chip {
+      background: #fae1e5;
+      color: #43131e;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .poster-viewport {
+      background: linear-gradient(180deg, #240a12 0%, #0d0407 100%);
+      border: 2px solid #541727;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .poster-head {
+      text-align: center;
+      border-bottom: 2px solid var(--primary-maroon);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .poster-head h3 {
+      font-size: 17px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .poster-head p {
+      font-size: 11px;
+      color: #ff385c;
+      font-weight: bold;
+    }
+
+    table.esports-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: center;
+    }
+    table.esports-table th {
+      background: #390e1a;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    table.esports-table td {
+      padding: 8px 4px;
+      border-bottom: 1px solid #280a13;
+    }
+    .rank-circle {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 10px;
+    }
+    .rk-1 { background: var(--gold); color: #000; }
+    .rk-2 { background: var(--silver); color: #000; }
+    .rk-3 { background: var(--bronze); color: #fff; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
+      background: #150509;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav-item {
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .nav-item.active {
+      color: #ff385c;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: #1e0e14;
+      border: 1.5px solid #ff385c;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+    }
+    .qr-image-display {
+      width: 160px;
+      height: 160px;
+      border-radius: 10px;
+      margin: 12px auto;
+      border: 2px solid #fff;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="user-app-container">
+    <!-- 1. DASHBOARD -->
+    <section id="screen-dashboard" class="screen active">
+      <div class="dash-topbar">
+        <h2 onclick="AdminCore.triggerSecretTap()">POINT<span>CALC</span></h2>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="badge-pro" onclick="App.showSubscriptionModal()">Premium 🔥</div>
+          <button onclick="AdminCore.requestAccess()" style="background:none; border:none; font-size:18px; cursor:pointer;">⚙️</button>
+        </div>
+      </div>
+
+      <div class="ai-banner-card" onclick="App.triggerAIScanner()">
+        <div>
+          <h4>🤖 AI Instant PT Maker</h4>
+          <p style="font-size:11px; color:#9c888f;">Screenshot upload karo, AI turant PT banayega</p>
+        </div>
+        <span style="font-size:24px;">⚡</span>
+      </div>
+
+      <div style="font-size:11px; color:var(--text-muted); font-weight:bold; padding:0 16px 8px;">QUICK ACTIONS</div>
+      <div class="qa-slider">
+        <div class="qa-box" onclick="App.navTo('screen-create')"><span>📇</span>Create card</div>
+        <div class="qa-box" onclick="App.navTo('screen-teams')"><span>👥</span>Add Teams</div>
+        <div class="qa-box" onclick="App.navTo('screen-calc')"><span>📊</span>Calculate</div>
+        <div class="qa-box" onclick="App.openPoster('tables')"><span>🏆</span>Posters</div>
+      </div>
+
+      <div style="font-size:11px; color:var(--text-muted); font-weight:bold; padding:8px 16px 8px;">ALL TOURNAMENTS</div>
+      <div id="tourneysList"></div>
+    </section>
+
+    <!-- 2. CREATE TOURNAMENT -->
+    <section id="screen-create" class="screen">
+      <div class="app-header">
+        <button class="back-btn" onclick="App.navTo('screen-dashboard')">&larr;</button>
+        <h1>Create a tournament</h1>
+        <p>Free Fire Scrims & Tournament Manager</p>
+      </div>
+      <div class="content-padding">
+        <div class="card-box">
+          <label>Tournament Name</label>
+          <input type="text" id="inpTourneyName" class="input-field" value="FREE FIRE SCRIMS S1" />
+          <button class="btn-action" onclick="App.navTo('screen-points')">Next: Point System &rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. POINT SYSTEM -->
+    <section id="screen-points" class="screen">
+      <div class="app-header">
+        <button class="back-btn" onclick="App.navTo('screen-create')">&larr;</button>
+        <h1>Point system</h1>
+        <p>Scoring Rules & Sliders</p>
+      </div>
+      <div class="content-padding">
+        <div class="card-box">
+          <label>Kills Point</label>
+          <div class="slider-row">
+            <span>Per Kill</span>
+            <input type="range" min="1" max="5" value="1" oninput="App.updateKillPts(this.value)" />
+            <span class="slider-val" id="dispKillPts">1</span>
+          </div>
+          <label style="margin-top:14px;">Position Points</label>
+          <div id="positionSliders"></div>
+          <button class="btn-action" style="margin-top:14px;" onclick="App.navTo('screen-teams')">Continue to Teams &rarr;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MANAGE TEAMS -->
+    <section id="screen-teams" class="screen">
+      <div class="app-header">
+        <button class="back-btn" onclick="App.navTo('screen-points')">&larr;</button>
+        <h1 id="teamsHeaderTitle">TEAM</h1>
+        <p>Add Slots & Roster</p>
+      </div>
+      <div class="content-padding">
+        <div class="tabs-wrap">
+          <div class="tab-btn active" id="tabAdd" onclick="App.switchTeamTab('add')">Add Team</div>
+          <div class="tab-btn" id="tabEntered" onclick="App.switchTeamTab('entered')">Entered (<span id="countBadge">0</span>)</div>
+        </div>
+
+        <div id="viewAddTeam" class="card-box">
+          <label>Slot Number</label>
+          <input type="number" id="inpSlotNo" class="input-field" value="1" min="1" max="24" />
+          <label>Team Name</label>
+          <input type="text" id="inpTeamName" class="input-field" placeholder="e.g. Total Gaming" />
+          <button class="btn-action" onclick="App.addTeam()">+ Add Team</button>
+          <button class="btn-action" style="background:#43131e; margin-top:8px;" onclick="App.finishTeams()">🏆 Save & Dashboard</button>
+        </div>
+
+        <div id="viewEnteredTeam" class="card-box" style="display:none;">
+          <div id="enteredTeamsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. CALCULATE MATCH POINTS -->
+    <section id="screen-calc" class="screen">
+      <div class="app-header">
+        <button class="back-btn" onclick="App.navTo('screen-dashboard')">&larr;</button>
+        <h1>Enter Match Points</h1>
+        <p>Update Kills & Placement</p>
+      </div>
+      <div class="content-padding">
+        <div class="card-box">
+          <label>Select Team</label>
+          <select id="dropTeams" class="input-field"></select>
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label>Placement</label>
+              <select id="dropPlacement" class="input-field">
+                <option value="1">#1 (12 pts)</option>
+                <option value="2">#2 (9 pts)</option>
+                <option value="3">#3 (8 pts)</option>
+                <option value="4">#4 (7 pts)</option>
+                <option value="5">#5 (6 pts)</option>
+                <option value="6">#6 (5 pts)</option>
+                <option value="7">#7 (4 pts)</option>
+                <option value="8">#8 (3 pts)</option>
+                <option value="9">#9 (2 pts)</option>
+                <option value="10">#10 (1 pt)</option>
+                <option value="11">#11 (0 pt)</option>
+                <option value="12">#12 (0 pt)</option>
+              </select>
+            </div>
+            <div style="flex:1;">
+              <label>Kills</label>
+              <input type="number" id="inpKills" class="input-field" value="0" min="0" />
+            </div>
+          </div>
+          <button class="btn-action" onclick="App.saveMatchScore()">+ Save Match Score</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. POSTERS -->
+    <section id="screen-posters" class="screen">
+      <div class="app-header">
+        <button class="back-btn" onclick="App.navTo('screen-dashboard')">&larr;</button>
+        <h1>Standing Tables</h1>
+        <p>Esports HD Result Studio</p>
+      </div>
+      <div class="content-padding">
+        <div id="posterRenderArea" class="poster-viewport">
+          <div class="poster-head">
+            <h3 id="pHeadTourney">FREE FIRE SCRIMS</h3>
+            <p>OVERALL STANDINGS</p>
+          </div>
+          <table class="esports-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th style="text-align:left; padding-left:6px;">Team</th>
+                <th>Place</th>
+                <th>Kills</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="pTablesBody"></tbody>
+          </table>
+        </div>
+        <button class="btn-action" style="background:#2ecc71;" onclick="App.downloadHDImage()">📥 Download HD Image</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="navDash" onclick="App.navTo('screen-dashboard')"><span>🏠</span>Home</div>
+    <div class="nav-item" id="navTeams" onclick="App.navTo('screen-teams')"><span>👥</span>Teams</div>
+    <div class="nav-item" id="navCalc" onclick="App.navTo('screen-calc')"><span>📝</span>Scores</div>
+    <div class="nav-item" id="navPosters" onclick="App.openPoster('tables')"><span>🎨</span>Posters</div>
+  </nav>
+
+  <!-- PAYMENT MODAL -->
+  <div id="subModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="color:#f1c40f; margin-bottom:4px;">PRO MEMBERSHIP 🔥</h3>
+      <p style="font-size:11px; color:#aaa;">Instant AI PT Maker unlock karne ke liye QR scan karein:</p>
+      <div class="qr-image-display">
+        <img id="userQrImg" src="" style="width:100%; height:100%; object-fit:contain;" alt="Payment QR" />
+      </div>
+      <p style="font-size:11px; color:#2ecc71; margin-bottom:12px;" id="qrUpiText">UPI: esports@upi</p>
+      <button class="btn-action" onclick="App.simulateSubscriptionUpgrade()">I Have Paid (Unlock AI)</button>
+      <button class="btn-action" style="background:#33131c; margin-top:6px;" onclick="document.getElementById('subModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <section id="screen-master-admin" class="screen" style="padding:16px;">
+    <div class="dash-topbar" style="margin:-16px -16px 16px -16px; border-bottom:2px solid #ff4757;">
+      <h2>MASTER <span>ADMIN PANEL</span></h2>
+      <button class="btn-action" style="width:auto; height:32px; padding:0 12px; background:#444;" onclick="AdminCore.closeAdmin()">Exit</button>
+    </div>
+    <div class="card-box">
+      <label>QR Code Image URL</label>
+      <input type="text" id="adminQrInput" class="input-field" />
+      <label>UPI ID</label>
+      <input type="text" id="adminUpiInput" class="input-field" />
+      <button class="btn-action" style="background:#2ecc71;" onclick="AdminCore.savePaymentDetails()">Save QR & UPI</button>
+    </div>
+  </section>
+
+  <script>
+    const App = {
+      state: {
+        tourneyName: "FREE FIRE SCRIMS S1",
+        isPremium: false,
+        qrCodeUrl: "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=esports@upi&pn=PointcalcPro",
+        upiId: "esports@upi",
+        scoring: {
+          killPts: 1,
+          placement: { 1: 12, 2: 9, 3: 8, 4: 7, 5: 6, 6: 5, 7: 4, 8: 3, 9: 2, 10: 1, 11: 0, 12: 0 }
+        },
+        teams: [
+          { slot: 1, name: "Total Gaming", placePts: 12, kills: 7, total: 19 },
+          { slot: 2, name: "GodLike", placePts: 9, kills: 5, total: 14 }
+        ]
+      },
+
+      init() {
+        const saved = localStorage.getItem('pointcalc_full_store');
+        if (saved) {
+          try { this.state = JSON.parse(saved); } catch(e){}
+        }
+        this.renderDashboard();
+        this.renderSliders();
+      },
+
+      saveState() {
+        localStorage.setItem('pointcalc_full_store', JSON.stringify(this.state));
+        this.renderDashboard();
+      },
+
+      navTo(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (screenId === 'screen-dashboard') document.getElementById('navDash').classList.add('active');
+        if (screenId === 'screen-teams') {
+          document.getElementById('navTeams').classList.add('active');
+          document.getElementById('teamsHeaderTitle').innerText = this.state.tourneyName.toUpperCase();
+          this.renderEnteredTeams();
+        }
+        if (screenId === 'screen-calc') {
+          document.getElementById('navCalc').classList.add('active');
+          this.populateCalcDropdown();
+        }
+        if (screenId === 'screen-posters') document.getElementById('navPosters').classList.add('active');
+      },
+
+      renderSliders() {
+        const cont = document.getElementById('positionSliders');
+        cont.innerHTML = '';
+        for (let i = 1; i <= 6; i++) {
+          const val = this.state.scoring.placement[i] || 0;
+          cont.innerHTML += `
+            <div class="slider-row">
+              <span>#${i}</span>
+              <input type="range" min="0" max="20" value="${val}" oninput="App.state.scoring.placement[${i}] = parseInt(this.value); this.nextElementSibling.innerText = this.value; App.saveState();" />
+              <span class="slider-val">${val}</span>
+            </div>
+          `;
+        }
+      },
+
+      updateKillPts(val) {
+        this.state.scoring.killPts = parseInt(val);
+        document.getElementById('dispKillPts').innerText = val;
+        this.saveState();
+      },
+
+      switchTeamTab(tab) {
+        if (tab === 'add') {
+          document.getElementById('tabAdd').classList.add('active');
+          document.getElementById('tabEntered').classList.remove('active');
+          document.getElementById('viewAddTeam').style.display = 'block';
+          document.getElementById('viewEnteredTeam').style.display = 'none';
+        } else {
+          document.getElementById('tabAdd').classList.remove('active');
+          document.getElementById('tabEntered').classList.add('active');
+          document.getElementById('viewAddTeam').style.display = 'none';
+          document.getElementById('viewEnteredTeam').style.display = 'block';
+          this.renderEnteredTeams();
+        }
+      },
+
+      addTeam() {
+        const name = document.getElementById('inpTeamName').value.trim();
+        const slot = parseInt(document.getElementById('inpSlotNo').value) || (this.state.teams.length + 1);
+
+        if (!name) return alert('Team name likhein!');
+
+        this.state.teams.push({ slot, name, placePts: 0, kills: 0, total: 0 });
+        document.getElementById('inpTeamName').value = '';
+        document.getElementById('inpSlotNo').value = this.state.teams.length + 1;
+        document.getElementById('countBadge').innerText = this.state.teams.length;
+        this.saveState();
+      },
+
+      renderEnteredTeams() {
+        const list = document.getElementById('enteredTeamsList');
+        list.innerHTML = '';
+        this.state.teams.forEach((t, i) => {
+          list.innerHTML += `
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #330b17; font-size:13px;">
+              <span><b>#${t.slot}</b> ${t.name}</span>
+              <span style="color:#ff385c; cursor:pointer;" onclick="App.state.teams.splice(${i},1); App.saveState(); App.renderEnteredTeams();">✕ Delete</span>
+            </div>
+          `;
+        });
+        document.getElementById('countBadge').innerText = this.state.teams.length;
+      },
+
+      finishTeams() {
+        const name = document.getElementById('inpTourneyName').value.trim();
+        if (name) this.state.tourneyName = name;
+        this.saveState();
+        this.navTo('screen-dashboard');
+      },
+
+      populateCalcDropdown() {
+        const sel = document.getElementById('dropTeams');
+        sel.innerHTML = '';
+        this.state.teams.forEach((t, i) => {
+          sel.innerHTML += `<option value="${i}">Slot #${t.slot} - ${t.name}</option>`;
+        });
+      },
+
+      saveMatchScore() {
+        if (!this.state.teams.length) return;
+        const idx = parseInt(document.getElementById('dropTeams').value);
+        const rank = parseInt(document.getElementById('dropPlacement').value);
+        const kills = parseInt(document.getElementById('inpKills').value) || 0;
+
+        const pPts = this.state.scoring.placement[rank] || 0;
+        const kPts = kills * this.state.scoring.killPts;
+
+        this.state.teams[idx].placePts = pPts;
+        this.state.teams[idx].kills = kills;
+        this.state.teams[idx].total = pPts + kPts;
+
+        this.saveState();
+        alert('Score saved!');
+        this.navTo('screen-dashboard');
+      },
+
+      triggerAIScanner() {
+        if (!this.state.isPremium) {
+          alert('🔒 AI Instant PT Maker feature sirf Premium users ke liye hai!');
+          this.showSubscriptionModal();
+          return;
+        }
+        alert('🤖 AI Scanning Match Result...');
+        setTimeout(() => {
+          this.state.teams = [
+            { slot: 1, name: "Total Gaming", placePts: 12, kills: 11, total: 23 },
+            { slot: 2, name: "GodLike", placePts: 9, kills: 8, total: 17 }
+          ];
+          this.saveState();
+          this.openPoster('tables');
+        }, 1000);
+      },
+
+      showSubscriptionModal() {
+        document.getElementById('userQrImg').src = this.state.qrCodeUrl;
+        document.getElementById('qrUpiText').innerText = "UPI: " + this.state.upiId;
+        document.getElementById('subModal').style.display = 'flex';
+      },
+
+      simulateSubscriptionUpgrade() {
+        this.state.isPremium = true;
+        this.saveState();
+        document.getElementById('subModal').style.display = 'none';
+        alert('🎉 Premium Active!');
+      },
+
+      openPoster(type) {
+        this.navTo('screen-posters');
+        document.getElementById('pHeadTourney').innerText = this.state.tourneyName;
+        this.renderTablesPoster();
+      },
+
+      renderTablesPoster() {
+        const tb = document.getElementById('pTablesBody');
+        tb.innerHTML = '';
+        let sorted = [...this.state.teams].sort((a,b) => b.total - a.total || b.kills - a.kills);
+
+        sorted.forEach((t, i) => {
+          let rCls = i === 0 ? 'rk-1' : i === 1 ? 'rk-2' : i === 2 ? 'rk-3' : '';
+          tb.innerHTML += `
+            <tr>
+              <td><span class="rank-circle ${rCls}">${i+1}</span></td>
+              <td style="text-align:left; padding-left:6px; font-weight:bold;">${t.name}</td>
+              <td>${t.placePts}</td>
+              <td>${t.kills}</td>
+              <td style="color:#2ecc71; font-weight:bold;">${t.total}</td>
+            </tr>
+          `;
+        });
+      },
+
+      downloadHDImage() {
+        const target = document.getElementById('posterRenderArea');
+        html2canvas(target, { backgroundColor: '#12080c', scale: 2 }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = `Pointcalc_${Date.now()}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
+      },
+
+      renderDashboard() {
+        const cont = document.getElementById('tourneysList');
+        cont.innerHTML = `
+          <div class="tourney-item-card">
+            <div class="tourney-head">
+              <span class="t-badge">01</span>
+              <div>
+                <div style="font-size:15px; font-weight:bold;">${this.state.tourneyName}</div>
+                <div style="font-size:11px; color:var(--text-muted);">Total teams: ${this.state.teams.length}</div>
+              </div>
+            </div>
+            <div class="pills-grid">
+              <div class="pill-chip" onclick="App.navTo('screen-calc')">Calculate</div>
+              <div class="pill-chip" onclick="App.openPoster('tables')">Tables</div>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    const AdminCore = {
+      secretTapCount: 0,
+      pin: "1234",
+
+      triggerSecretTap() {
+        this.secretTapCount++;
+        if (this.secretTapCount >= 5) {
+          this.secretTapCount = 0;
+          this.requestAccess();
+        }
+      },
+
+      requestAccess() {
+        const entered = prompt("Enter Admin PIN:");
+        if (entered === this.pin) {
+          this.openAdmin();
+        }
+      },
+
+      openAdmin() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-master-admin').classList.add('active');
+        document.getElementById('adminQrInput').value = App.state.qrCodeUrl;
+        document.getElementById('adminUpiInput').value = App.state.upiId;
+      },
+
+      closeAdmin() {
+        App.navTo('screen-dashboard');
+      },
+
+      savePaymentDetails() {
+        const qrUrl = document.getElementById('adminQrInput').value.trim();
+        const upi = document.getElementById('adminUpiInput').value.trim();
+        if (qrUrl) App.state.qrCodeUrl = qrUrl;
+        if (upi) App.state.upiId = upi;
+        App.saveState();
+        alert('Details saved!');
+      }
+    };
+
+    App.init();
+  </script>
+</body>
+</html>
